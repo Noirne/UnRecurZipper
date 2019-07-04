@@ -2,19 +2,6 @@ import zipfile
 import os
 import glob
 import sys
-# When an archive is found in a directory
-class ZipFile(object):
-    def __init__(self, path):
-        self.path = path
-        zip_ref = zipfile.ZipFile(self.path, 'r')
-        self.path = self.path.split('.zip')[0]
-        print("Current zip is at: " + self.path)
-        self.UnzipFile(zip_ref)
-    
-    def UnzipFile(self, zip_ref):
-        zip_ref.extractall(self.path)
-        Folder(self.path)
-        #os.remove(self.name + '.zip')
 
 # Actual directory that we could find somewhere
 class Folder:
@@ -24,29 +11,26 @@ class Folder:
         self.checkForZippedFile()
         self.checkForDirectories()
         
-
     def checkForZippedFile(self):
         self.filesToUnzip = list()
         self.filesToUnzip = glob.glob(os.path.join(self.path,'*.zip'), recursive=True)
+        # If we find a .zip file in the current directory
         for fileToUnzip in self.filesToUnzip:
             print("new ZipFile found at: " + fileToUnzip)
-            fileToUnzip = ZipFile(fileToUnzip)
+            zip_ref = zipfile.ZipFile(fileToUnzip, 'r')         # We prepare to unzip
+            zipFilePath = fileToUnzip.split('.zip')[0]          # Reformating the path to remove the .zip at the end
+            print("Current zip is at: " + zipFilePath)
+            zip_ref.extractall(zipFilePath)                     # Extracting .zip content
+            zip_ref.close()                                     # Closing extraction flow
+            os.remove(zipFilePath + '.zip')                     # Removing the zip files
+            Folder(zipFilePath)                                 # Calling Folder again
 
     def checkForDirectories(self):
         with os.scandir(self.path) as listOfDirectories:
             for entry in listOfDirectories:
+                # We check if the actual file is a directory and if it isn't the .git one
                 if not entry.is_file() and entry.name != '.git':
                     entry = Folder(os.path.join(self.path, entry.name))
 
+# Reading the first arg written in the console (program name not included)
 fileTest = Folder(sys.argv[1])
-#fileDirectories = fileTest.checkForDirectories()
-#fileZip = fileTest.checkForZippedFile()
-#print("Directories: ")
-#print(fileDirectories)
-#print("Files to unzip: ")
-#print(fileZip)
-
-
-
-
-
