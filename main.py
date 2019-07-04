@@ -1,7 +1,7 @@
 import zipfile
 import os
 import glob
-
+import sys
 # When an archive is found in a directory
 class ZipFile(object):
     def __init__(self, path):
@@ -38,7 +38,7 @@ class Folder:
                 if not entry.is_file() and entry.name != '.git':
                     entry = Folder(os.path.join(self.path, entry.name))
 
-fileTest = Folder('.')
+fileTest = Folder(sys.argv[1])
 #fileDirectories = fileTest.checkForDirectories()
 #fileZip = fileTest.checkForZippedFile()
 #print("Directories: ")
